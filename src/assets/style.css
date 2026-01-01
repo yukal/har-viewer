@@ -1,0 +1,35 @@
+body {
+  padding: 20px;
+  font-family: sans-serif;
+  font-size: 12px;
+}
+
+.content table {
+  border: 1px solid gainsboro;
+  width: 100%;
+  margin-top: 20px;
+  border-collapse: collapse;
+}
+
+.content thead tr {
+  background: #f4f4f4;
+}
+
+.row:hover {
+  background-color: #f0f0f0;
+  cursor: pointer;
+}
+
+.url-cell {
+  max-width: 400px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.details {
+  margin-top: 20px;
+  padding: 15px;
+  border: 1px solid #ccc;
+  background: #fafafa;
+}
