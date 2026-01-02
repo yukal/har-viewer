@@ -16,11 +16,59 @@ body, html {
 
 .top-bar {
   display: flex;
+  flex-direction: row;
   align-items: center;
   gap: 20px;
   padding: 10px 20px;
   background: #fff;
-  border-bottom: 1px solid #ddd;
+}
+
+[type^="checkbox"] {
+  cursor: pointer;
+}
+
+.workspace {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+.method-badge {
+  padding: 2px 5px;
+  border-radius: 3px;
+  font-size: 11px;
+  font-weight: bold;
+  color: white;
+}
+
+.get {
+  background-color: mediumseagreen;
+}
+
+.post {
+  background-color: darkslateblue;
+}
+
+.status-badge {
+  padding: 2px 5px;
+  border-radius: 3px;
+  font-size: 11px;
+  font-weight: bold;
+}
+
+.status-success {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.status-error {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+
+.status-warning {
+  background-color: #fff3cd;
+  color: #856404;
 }
 
 .btn-upload {
@@ -31,10 +79,49 @@ body, html {
   cursor: pointer;
 }
 
-.workspace {
+.btn-delete-manual {
+  padding: 8px 16px;
+  background: #9b59b6;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+  margin-left: 10px;
+}
+
+.btn-export {
+  padding: 8px 16px;
+  background: #3498db;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+  margin-left: 10px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.btn-export:hover {
+  background: #2980b9;
+}
+
+.btn-search-clear {
+  position: absolute;
+  right: 8px;
+  background: none;
+  border: none;
+  padding: 4px;
+  cursor: pointer;
+  color: #999;
   display: flex;
-  flex: 1;
-  overflow: hidden;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s;
+}
+
+.btn-search-clear:hover {
+  color: #e74c3c;
 }
 
 /* Sidebar */
@@ -48,8 +135,11 @@ body, html {
 .har-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 13px;
   table-layout: fixed;
+}
+
+.har-table td {
+  cursor: pointer;
 }
 
 .har-table th {
@@ -70,25 +160,11 @@ body, html {
 }
 
 .active-row {
-  background-color: #e3f2fd !important;
+  background-color: #dbf0ff;
 }
 
-.har-table tr:hover {
+.har-table tr:not(.active-row):hover {
   background: #f5f5f5;
-  cursor: pointer;
-}
-
-.method {
-  font-weight: bold;
-  width: 60px;
-}
-
-.get {
-  color: #2ecc71;
-}
-
-.post {
-  color: #f39c12;
 }
 
 .details-panel {
@@ -103,25 +179,17 @@ body, html {
   grid-template-columns: 200px 1fr;
   gap: 5px;
   font-family: monospace;
-  font-size: 12px;
+  margin-bottom: 20px;
 }
 
 .h-name {
-  font-weight: bold;
-  color: #555;
+  font-weight: 500;
+  color: #292929;
 }
 
 .h-value {
   word-break: break-all;
-  color: #d63384;
-}
-
-.status-success {
-  color: #2ecc71;
-}
-
-.status-error {
-  color: #e74c3c;
+  color: darkslateblue;
 }
 
 .empty-state {
@@ -132,24 +200,34 @@ body, html {
   color: #999;
 }
 
-.search-input {
+.search-wrapper {
+  position: relative;
   flex: 1;
   max-width: 400px;
-  padding: 8px 12px;
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+}
+
+.search-input {
+  flex: 1;
+  width: 100%;
+  padding: 8px 35px 8px 12px;
   border: 1px solid #ccc;
   border-radius: 4px;
-  margin-left: auto;
 }
 
 .response-pre {
+  margin: 0;
   background: #272822;
+  background: #142c2c;
+  background: #172222;
+  background: #2f2f35;
   color: #f8f8f2;
   padding: 15px;
-  border-radius: 6px;
   overflow-x: auto;
-  font-size: 12px;
   line-height: 1.5;
-  max-height: 400px;
+  max-height: 600px;
 }
 
 .url-break {
@@ -159,9 +237,8 @@ body, html {
 }
 
 .tabs-container h4 {
-  border-bottom: 2px solid #42b883;
-  padding-bottom: 5px;
-  margin-top: 25px;
+  border-bottom: 1px solid #ebebeb;
+  padding-bottom: 8px;
 }
 
 /* Waterfall */
@@ -169,7 +246,7 @@ body, html {
   position: relative;
   width: 100%;
   height: 14px;
-  background: #f0f0f0;
+  background: #e1e1e1;
   border-radius: 2px;
   overflow: hidden;
 }
@@ -177,7 +254,7 @@ body, html {
 .waterfall-bar {
   position: absolute;
   height: 100%;
-  background: #42b883;
+  background: #0c6dce;
   opacity: 0.8;
   min-width: 2px;
   transition: all 0.2s ease;
@@ -187,20 +264,22 @@ tr:has(.status-error) .waterfall-bar {
   background: #e74c3c;
 }
 
-tr:hover .waterfall-bar {
-  opacity: 1;
-  filter: brightness(1.1);
+.time-cell {
+  color: darkslategray;
 }
 
 /* Status Bar */
 .stats-bar {
   display: flex;
   gap: 20px;
-  background: #34495e;
+  background: #323249;
   color: white;
-  padding: 5px 20px;
-  font-size: 12px;
+  padding: 8px 20px;
   align-items: center;
+}
+
+.stats-bar .label {
+  padding: 4px;
 }
 
 .btn-delete {
@@ -213,14 +292,10 @@ tr:hover .waterfall-bar {
   margin-left: auto;
 }
 
-.btn-delete:hover {
-  background: #c0392b;
-}
-
 .cookie-table {
   width: 100%;
-  font-size: 12px;
   border-collapse: collapse;
+  margin-bottom: 10px;
 }
 
 .cookie-table th,
@@ -235,22 +310,6 @@ tr:hover .waterfall-bar {
   font-weight: bold;
 }
 
-.btn-export {
-  padding: 8px 16px;
-  background: #3498db;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-weight: bold;
-  margin-left: 10px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.btn-export:hover {
-  background: #2980b9;
-}
-
 .actions {
   display: flex;
   align-items: center;
@@ -261,19 +320,61 @@ tr:hover .waterfall-bar {
   font-weight: bold;
 }
 
-.badge {
-  font-size: 9px;
-  background: #e67e22;
-  color: white;
-  padding: 2px 4px;
-  border-radius: 3px;
-  margin-left: 5px;
-  vertical-align: middle;
+/* Вкладки */
+.response-tabs {
+  display: flex;
 }
 
-.cookie-table td {
-  max-width: 300px;
-  word-break: break-all;
+.response-tabs button {
+  padding: 6px 15px;
+  border: 1px solid transparent;
+  background: #2a4a4a;
+  color: white;
+
+  background: #c9c9d0;
+  color: #2f2f35;
+
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.response-tabs button:first-child {
+  border-radius: 4px 0 0 0;
+}
+
+.response-tabs button:last-child {
+  border-radius: 0 4px 0 0;
+}
+
+.response-tabs button.active {
+  background: #2f2f35;
+  border-color: #2f2f35;
+  color: white;
+}
+
+.preview-content {
+  background: #fff;
+  min-height: 100px;
+}
+
+.image-preview {
+  display: flex;
+  justify-content: center;
+  padding: 20px;
+
+  /* шахівниця */
+  background-color: #ffffff;
+  background-image:
+    linear-gradient(45deg, #eee 25%, transparent 25%, transparent 75%, #eee 75%, #eee),
+    linear-gradient(45deg, #eee 25%, transparent 25%, transparent 75%, #eee 75%, #eee);
+  background-size: 20px 20px;
+  background-position: 0 0, 10px 10px;
+  border: 1px solid #e1e1e1;
+}
+
+.image-preview img {
+  max-width: 100%;
+  max-height: 500px;
 }
 
 .animated-fade-in {
