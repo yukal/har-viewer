@@ -233,23 +233,21 @@ const isSensitiveCookie = (name) => ['auth', 'token', 'session', 'jwt', 'sid', '
         <input type="file" @change="handleFileUpload" accept=".har" id="file" hidden />
         <label for="file" class="btn-upload">
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-            data-v-inspector="src/App.vue:165:15">
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path
-              d="M11.35 22H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.706.706l3.588 3.588A2.4 2.4 0 0 1 20 8v5.35"
-              data-v-inspector="src/App.vue:167:17"></path>
-            <path d="M14 2v5a1 1 0 0 0 1 1h5" data-v-inspector="src/App.vue:169:17"></path>
-            <path d="M14 19h6" data-v-inspector="src/App.vue:170:17"></path>
-            <path d="M17 16v6" data-v-inspector="src/App.vue:171:17"></path>
+              d="M11.35 22H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.706.706l3.588 3.588A2.4 2.4 0 0 1 20 8v5.35" />
+            <path d="M14 2v5a1 1 0 0 0 1 1h5" />
+            <path d="M14 19h6" />
+            <path d="M17 16v6" />
           </svg>
         </label>
 
         <button @click="deleteSelected" :disabled="selectedIds.size === 0" class="btn-delete-manual">
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"></path>
-            <path d="M3 6h18"></path>
-            <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6" />
+            <path d="M3 6h18" />
+            <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
           </svg>
           <span class="btn-count">({{ selectedIds.size }})</span>
         </button>
@@ -257,9 +255,9 @@ const isSensitiveCookie = (name) => ['auth', 'token', 'session', 'jwt', 'sid', '
         <button @click="exportHAR" :disabled="!isModified" class="btn-export">
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M12 17V3"></path>
-            <path d="m6 11 6 6 6-6"></path>
-            <path d="M19 21H5"></path>
+            <path d="M12 17V3" />
+            <path d="m6 11 6 6 6-6" />
+            <path d="M19 21H5" />
           </svg>
         </button>
       </div>
