@@ -1,6 +1,6 @@
 {
-  "name": "har-reader",
-  "version": "0.0.0",
+  "name": "har-viewer",
+  "version": "1.0.0",
   "private": true,
   "type": "module",
   "engines": {
