@@ -238,7 +238,7 @@ const isSensitiveCookie = (name) => ['auth', 'token', 'session', 'jwt', 'sid', '
 
       <div class="actions animated-fade-in">
         <input type="file" @change="handleFileUpload" accept=".har" id="file" hidden />
-        <label for="file" class="btn-upload">
+        <label for="file" class="btn-upload" title="Open File">
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path
@@ -249,7 +249,7 @@ const isSensitiveCookie = (name) => ['auth', 'token', 'session', 'jwt', 'sid', '
           </svg>
         </label>
 
-        <button @click="deleteSelected" :disabled="selectedIds.size === 0" class="btn-delete-manual">
+        <button @click="deleteSelected" :disabled="selectedIds.size === 0" class="btn-delete-manual" title="Delete Selected Nodes">
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6" />
@@ -259,7 +259,7 @@ const isSensitiveCookie = (name) => ['auth', 'token', 'session', 'jwt', 'sid', '
           <span class="btn-count">({{ selectedIds.size }})</span>
         </button>
 
-        <button @click="exportHAR" :disabled="!isModified" class="btn-export">
+        <button @click="exportHAR" :disabled="!isModified" class="btn-export" title="Download Modified HAR File">
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M12 17V3" />
