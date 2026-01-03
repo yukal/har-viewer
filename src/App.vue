@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 
 var harData = ref(null);
 var selectedEntry = ref(null);
@@ -383,7 +383,7 @@ const isSensitiveCookie = (name) => ['auth', 'token', 'session', 'jwt', 'sid', '
 
                 <div v-else class="preview-content">
                   <div v-if="getContentType(selectedEntry) === 'image'" class="image-preview">
-                    <img v-if="!selectedEntry.response.content.size" src="/public/icons/no-body.svg" alt="No Content Body Image" />
+                    <img v-if="!selectedEntry.response.content.size" src="/src/assets/icons/no-body.svg" alt="No Content Body Image" />
                     <img v-else :src="getResponseImage(selectedEntry)" alt="Response Image" />
                   </div>
 
