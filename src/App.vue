@@ -8,6 +8,7 @@ var isModified = ref(false);
 var selectedIds = ref(new Set());
 var responseTab = ref('preview');
 
+// --- Helpers ---
 const formatTime = (dateTime) => {
   var date = new Date(dateTime);
   return date.toLocaleTimeString([], {
@@ -76,7 +77,7 @@ const filteredEntries = computed(() => {
 });
 
 const isAllSelected = computed(() => {
-  return filteredEntries.value.length > 0 
+  return filteredEntries.value.length > 0
     && selectedIds.value.size === filteredEntries.value.length;
 });
 
@@ -126,6 +127,15 @@ const getWaterfallStyle = (entry) => {
   };
 };
 
+const harMetadata = computed(() => {
+  var { creator, version } = harData.value?.log ?? {
+    creator: { name: 'Vue', version: '3' },
+    version: '?',
+  };
+
+  return `${creator?.name} v${creator?.version} (HAR v${version})`;
+});
+
 // --- Actions ---
 
 const handleFileUpload = (event) => {
@@ -140,6 +150,7 @@ const handleFileUpload = (event) => {
       harData.value = JSON.parse(e.target.result);
       selectedEntry.value = null;
       isModified.value = false;
+      searchQuery.value = '';
       selectedIds.value.clear();
 
     } catch (error) {
@@ -178,9 +189,9 @@ const toggleRowSelection = (index) => {
 };
 
 const selectAllOnPage = (event) => {
-  selectedIds.value.clear(); // Спочатку очищуємо
+  selectedIds.value.clear();
+
   if (event.target.checked) {
-    // Додаємо індекси саме тих елементів, які ми бачимо (відфільтровані)
     filteredEntries.value.forEach((_, index) => {
       selectedIds.value.add(index);
     });
@@ -220,11 +231,36 @@ const isSensitiveCookie = (name) => ['auth', 'token', 'session', 'jwt', 'sid', '
 
       <div class="actions animated-fade-in">
         <input type="file" @change="handleFileUpload" accept=".har" id="file" hidden />
-        <label for="file" class="btn-upload">Завантажити файл</label>
+        <label for="file" class="btn-upload">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+            data-v-inspector="src/App.vue:165:15">
+            <path
+              d="M11.35 22H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.706.706l3.588 3.588A2.4 2.4 0 0 1 20 8v5.35"
+              data-v-inspector="src/App.vue:167:17"></path>
+            <path d="M14 2v5a1 1 0 0 0 1 1h5" data-v-inspector="src/App.vue:169:17"></path>
+            <path d="M14 19h6" data-v-inspector="src/App.vue:170:17"></path>
+            <path d="M17 16v6" data-v-inspector="src/App.vue:171:17"></path>
+          </svg>
+        </label>
 
-        <button v-if="isModified" @click="exportHAR" class="btn-export animated-fade-in">💾 Зберегти зміни (.har)</button>
-        <button v-if="selectedIds.size > 0" @click="deleteSelected" class="btn-delete-manual animated-fade-in">
-          🗑️ Видалити ({{ selectedIds.size }})
+        <button @click="deleteSelected" :disabled="selectedIds.size === 0" class="btn-delete-manual">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"></path>
+            <path d="M3 6h18"></path>
+            <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+          </svg>
+          <span class="btn-count">({{ selectedIds.size }})</span>
+        </button>
+
+        <button @click="exportHAR" :disabled="!isModified" class="btn-export">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 17V3"></path>
+            <path d="m6 11 6 6 6-6"></path>
+            <path d="M19 21H5"></path>
+          </svg>
         </button>
       </div>
 
@@ -235,9 +271,12 @@ const isSensitiveCookie = (name) => ['auth', 'token', 'session', 'jwt', 'sid', '
     </header>
 
     <div class="stats-bar" :aria-disabled="!harData">
+      <span class="metadata">{{ harMetadata }}</span>
+      <div class="separator"></div>
       <span class="label">Знайдено: <strong>{{ stats.count }}</strong></span>
       <span class="label">Розмір: <strong>{{ stats.size }}</strong></span>
-      <span class="label" :class="{ 'text-error': stats.errors > 0 }">Помилки: <strong>{{ stats.errors }}</strong></span>
+      <span class="label" :class="{ 'text-error': stats.errors > 0 }">Помилки: <strong>{{ 
+        stats.errors }}</strong></span>
     </div>
 
     <main class="workspace">
@@ -268,10 +307,10 @@ const isSensitiveCookie = (name) => ['auth', 'token', 'session', 'jwt', 'sid', '
               </td>
               <td class="protocol-cell">{{ entry.response.httpVersion || entry.request.httpVersion }}</td>
               <td>
-                <span :class="['status-badge', getStatusClass(entry.response.status)]">{{ 
+                <span :class="['status-badge', getStatusClass(entry.response.status)]">{{
                   entry.response.status }}</span>
               </td>
-              <td class="url">{{ getUrlPath(entry.request.url) }}</td>
+              <td class="url-cell">{{ getUrlPath(entry.request.url) }}</td>
               <td>
                 <div class="waterfall-container">
                   <div class="waterfall-bar" :style="getWaterfallStyle(entry)"></div>
@@ -283,10 +322,24 @@ const isSensitiveCookie = (name) => ['auth', 'token', 'session', 'jwt', 'sid', '
       </section>
 
       <section class="details-panel" v-if="selectedEntry">
-        <div class="details-content">
-          <strong>URL:</strong> <span class="url-break">{{ selectedEntry.request.url }}</span>
+        <div class="details-header">
+          <div class="info-line">
+            <strong>URL:</strong> <span class="url-break">{{ selectedEntry.request.url }}</span>
+          </div>
+          <div class="info-line">
+            <strong>Protocol:</strong> <span class="badge-protocol">{{
+              selectedEntry.response.httpVersion || selectedEntry.request.httpVersion }}</span>
+          </div>
 
           <div class="tabs-container" v-if="selectedEntry">
+            <template v-if="selectedEntry.request.postData">
+              <h4>Payload (Request Data)</h4>
+              <div class="info-block payload">
+                <div class="mime-type">Type: {{ selectedEntry.request.postData.mimeType }}</div>
+                <pre class="payload-pre">{{ formatJSON(selectedEntry.request.postData.text) }}</pre>
+              </div>
+            </template>
+
             <h4>Cookies</h4>
             <div v-if="selectedEntry.request.cookies.length || selectedEntry.response.cookies.length">
               <table class="cookie-table">
@@ -311,7 +364,7 @@ const isSensitiveCookie = (name) => ['auth', 'token', 'session', 'jwt', 'sid', '
                 </tbody>
               </table>
             </div>
-            <p v-else>Cookies відсутні</p>
+            <p v-else class="empty-note">Cookies відсутні</p>
 
             <h4>Request Headers</h4>
             <div class="header-grid">
