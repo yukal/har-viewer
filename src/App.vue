@@ -303,7 +303,7 @@ const isSensitiveCookie = (name) => ['auth', 'token', 'session', 'jwt', 'sid', '
               <td>
                 <span :class="['method-badge', entry.request.method.toLowerCase()]">{{ entry.request.method }}</span>
               </td>
-              <td class="protocol-cell">{{ entry.response.httpVersion || entry.request.httpVersion }}</td>
+              <td class="uppercase">{{ entry.response.httpVersion || entry.request.httpVersion || '?' }}</td>
               <td>
                 <span :class="['status-badge', getStatusClass(entry.response.status)]">{{
                   entry.response.status }}</span>
@@ -324,20 +324,19 @@ const isSensitiveCookie = (name) => ['auth', 'token', 'session', 'jwt', 'sid', '
           <div class="info-line">
             <strong>URL:</strong> <span class="url-break">{{ selectedEntry.request.url }}</span>
           </div>
-          <div class="info-line">
-            <strong>Protocol:</strong> <span class="badge-protocol">{{
-              selectedEntry.response.httpVersion || selectedEntry.request.httpVersion }}</span>
+
+          <div class="header-grid">
+            <span class="h-name">Protocol:</span>
+            <span class="h-value uppercase">{{ selectedEntry.response.httpVersion || selectedEntry.request.httpVersion || '?' }}</span>
+
+            <span class="h-name">Resource Type:</span>
+            <span class="h-value">{{ selectedEntry._resourceType }}</span>
+
+            <span class="h-name">Method:</span>
+            <span class="h-value">{{ selectedEntry.request.method }}</span>
           </div>
 
           <div class="tabs-container" v-if="selectedEntry">
-            <template v-if="selectedEntry.request.postData">
-              <h4>Payload (Request Data)</h4>
-              <div class="info-block payload">
-                <div class="mime-type">Type: {{ selectedEntry.request.postData.mimeType }}</div>
-                <pre class="payload-pre">{{ formatJSON(selectedEntry.request.postData.text) }}</pre>
-              </div>
-            </template>
-
             <h4>Cookies</h4>
             <div v-if="selectedEntry.request.cookies.length || selectedEntry.response.cookies.length">
               <table class="cookie-table">
@@ -362,7 +361,7 @@ const isSensitiveCookie = (name) => ['auth', 'token', 'session', 'jwt', 'sid', '
                 </tbody>
               </table>
             </div>
-            <p v-else class="empty-note">Cookies відсутні</p>
+            <div v-else class="empty-note">Cookies відсутні</div>
 
             <h4>Request Headers</h4>
             <div class="header-grid">
@@ -371,6 +370,14 @@ const isSensitiveCookie = (name) => ['auth', 'token', 'session', 'jwt', 'sid', '
                 <span class="h-value">{{ h.value }}</span>
               </template>
             </div>
+
+            <template v-if="selectedEntry.request.postData">
+              <h4>Request Data (Payload)</h4>
+              <div class="info-block payload">
+                <div class="mime-type">Type: {{ selectedEntry.request.postData.mimeType }}</div>
+                <pre class="payload-pre">{{ formatJSON(selectedEntry.request.postData.text) }}</pre>
+              </div>
+            </template>
 
             <h4>Response Headers</h4>
             <div class="header-grid">
