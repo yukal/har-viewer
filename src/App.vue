@@ -7,6 +7,7 @@ var searchQuery = ref('');
 var isModified = ref(false);
 var selectedIds = ref(new Set());
 var responseTab = ref('preview');
+var activeTab = ref('request');
 
 // --- Helpers ---
 const formatTime = (dateTime) => {
@@ -18,6 +19,8 @@ const formatTime = (dateTime) => {
     second: '2-digit'
   });
 };
+
+const shortUrl = (url) => url ? url.split('/').pop().split('?')[0] : 'unknown';
 
 const getUrlPath = (fullUrl) => {
   try {
@@ -64,6 +67,10 @@ const getResponseImage = (entry) => {
 };
 
 // --- Обчислювальні властивості ---
+
+const initiatorStack = computed(() => {
+  return selectedEntry.value?._initiator?.stack?.callFrames || [];
+});
 
 const filteredEntries = computed(() => {
   if (!harData.value) return [];
@@ -273,7 +280,7 @@ const isSensitiveCookie = (name) => ['auth', 'token', 'session', 'jwt', 'sid', '
       <div class="separator"></div>
       <span class="label">Знайдено: <strong>{{ stats.count }}</strong></span>
       <span class="label">Розмір: <strong>{{ stats.size }}</strong></span>
-      <span class="label" :class="{ 'text-error': stats.errors > 0 }">Помилки: <strong>{{ 
+      <span class="label" :class="{ 'text-error': stats.errors > 0 }">Помилки: <strong>{{
         stats.errors }}</strong></span>
     </div>
 
@@ -321,22 +328,76 @@ const isSensitiveCookie = (name) => ['auth', 'token', 'session', 'jwt', 'sid', '
 
       <section class="details-panel" v-if="selectedEntry">
         <div class="details-header">
-          <div class="info-line">
-            <strong>URL:</strong> <span class="url-break">{{ selectedEntry.request.url }}</span>
+          <nav class="main-tabs">
+            <button :class="{ active: activeTab === 'request' }" @click="activeTab = 'request'">Request</button>
+            <button :class="{ active: activeTab === 'payload' }" @click="activeTab = 'payload'"
+              :disabled="!selectedEntry.request.postData">Payload</button>
+            <button :class="{ active: activeTab === 'response' }" @click="activeTab = 'response'">Response</button>
+            <button :class="{ active: activeTab === 'cookies' }" @click="activeTab = 'cookies'">Cookies</button>
+            <button v-if="initiatorStack.length" :class="{ active: activeTab === 'initiator' }"
+              @click="activeTab = 'initiator'">Initiator</button>
+          </nav>
+        </div>
+
+        <div class="tab-content">
+          <div v-if="activeTab === 'request'">
+            <h4>General</h4>
+
+            <div class="header-grid">
+              <span class="h-name">Request URL:</span> <span class="h-value">{{ selectedEntry.request.url }}</span>
+              <span class="h-name">Resource Type:</span> <span class="h-value">{{ selectedEntry._resourceType }}</span>
+              <span class="h-name">Connection ID:</span> <span class="h-value">{{ selectedEntry._connectionId ?? '' }}</span>
+            </div>
+
+            <h4>Headers</h4>
+            <div class="header-section">
+              <div class="header-grid">
+                <template v-for="h in selectedEntry.request.headers" :key="'rh'+h.name"><span class="h-name">{{ h.name
+                }}:</span><span class="h-value">{{ h.value }}</span></template>
+              </div>
+            </div>
           </div>
 
-          <div class="header-grid">
-            <span class="h-name">Protocol:</span>
-            <span class="h-value uppercase">{{ selectedEntry.response.httpVersion || selectedEntry.request.httpVersion || '?' }}</span>
+          <div v-if="activeTab === 'payload'">
+            <template v-if="selectedEntry.request.postData">
+              <h4>Request Data (Payload)</h4>
 
-            <span class="h-name">Resource Type:</span>
-            <span class="h-value">{{ selectedEntry._resourceType }}</span>
-
-            <span class="h-name">Method:</span>
-            <span class="h-value">{{ selectedEntry.request.method }}</span>
+              <div class="info-block payload">
+                <div class="mime-type">Type: {{ selectedEntry.request.postData.mimeType }}</div>
+                <pre class="payload-pre">{{ formatJSON(selectedEntry.request.postData.text) }}</pre>
+              </div>
+            </template>
           </div>
 
-          <div class="tabs-container" v-if="selectedEntry">
+          <div v-if="activeTab === 'response'">
+            <h4>Response Body</h4>
+
+            <div class="response-container">
+              <div class="response-tabs">
+                <button :class="{ active: responseTab === 'preview' }" @click="responseTab = 'preview'">Preview</button>
+                <button :class="{ active: responseTab === 'raw' }" @click="responseTab = 'raw'">Raw</button>
+              </div>
+              <div class="response-viewer">
+                <pre v-if="responseTab === 'raw'" class="response-pre">{{ selectedEntry.response.content.text || 'No Body'
+                }}</pre>
+
+                <div v-else class="preview-content">
+                  <div v-if="getContentType(selectedEntry) === 'image'" class="image-preview">
+                    <img v-if="!selectedEntry.response.content.size" src="/public/icons/no-body.svg" alt="No Content Body Image" />
+                    <img v-else :src="getResponseImage(selectedEntry)" alt="Response Image" />
+                  </div>
+
+                  <pre v-else-if="getContentType(selectedEntry) === 'json'" class="response-pre json-formatted">{{
+                    formatJSON(selectedEntry.response.content.text) }}</pre>
+                  <pre v-else
+                    class="response-pre">{{ selectedEntry.response.content.text || 'No preview available' }}</pre>
+                </div>
+
+              </div>
+            </div>
+          </div>
+
+          <div v-if="activeTab === 'cookies'">
             <h4>Cookies</h4>
             <div v-if="selectedEntry.request.cookies.length || selectedEntry.response.cookies.length">
               <table class="cookie-table">
@@ -362,53 +423,17 @@ const isSensitiveCookie = (name) => ['auth', 'token', 'session', 'jwt', 'sid', '
               </table>
             </div>
             <div v-else class="empty-note">Cookies відсутні</div>
+          </div>
 
-            <h4>Request Headers</h4>
-            <div class="header-grid">
-              <template v-for="h in selectedEntry.request.headers" :key="'reqh'+h.name">
-                <span class="h-name">{{ h.name }}:</span>
-                <span class="h-value">{{ h.value }}</span>
-              </template>
-            </div>
-
-            <template v-if="selectedEntry.request.postData">
-              <h4>Request Data (Payload)</h4>
-              <div class="info-block payload">
-                <div class="mime-type">Type: {{ selectedEntry.request.postData.mimeType }}</div>
-                <pre class="payload-pre">{{ formatJSON(selectedEntry.request.postData.text) }}</pre>
-              </div>
-            </template>
-
-            <h4>Response Headers</h4>
-            <div class="header-grid">
-              <template v-for="h in selectedEntry.response.headers" :key="'resh'+h.name">
-                <span class="h-name">{{ h.name }}:</span>
-                <span class="h-value">{{ h.value }}</span>
-              </template>
-            </div>
-
-            <h4>Response Body</h4>
-            <div class="response-container">
-              <div class="response-tabs">
-                <button :class="{ active: responseTab === 'preview' }" @click="responseTab = 'preview'">Preview</button>
-                <button :class="{ active: responseTab === 'raw' }" @click="responseTab = 'raw'">Raw</button>
-              </div>
-
-              <div class="response-viewer">
-                <pre v-if="responseTab === 'raw'"
-                  class="response-pre">{{ selectedEntry.response.content.text || 'No Body' }}</pre>
-
-                <div v-else class="preview-content">
-                  <div v-if="getContentType(selectedEntry) === 'image'" class="image-preview">
-                    <img v-if="!selectedEntry.response.content.size" src="/public/icons/no-body.svg" alt="No Content Body Image" />
-                    <img v-else :src="getResponseImage(selectedEntry)" alt="Response Image" />
-                  </div>
-
-                  <pre v-else-if="getContentType(selectedEntry) === 'json'" class="response-pre json-formatted">{{
-                    formatJSON(selectedEntry.response.content.text) }}</pre>
-                  <pre v-else
-                    class="response-pre">{{ selectedEntry.response.content.text || 'No preview available' }}</pre>
-                </div>
+          <div v-if="activeTab === 'initiator'" class="initiator-panel">
+            <h4>Request Call Stack</h4>
+            <div class="stack-trace">
+              <div v-for="(frame, idx) in initiatorStack" :key="idx" class="stack-frame">
+                <span class="frame-func">{{ frame.functionName || '(anonymous)' }}</span>
+                <span class="frame-url" :title="frame.url">
+                  {{ shortUrl(frame.url) }}:{{ frame.lineNumber + 1 }}
+                </span>
+                <span class="frame-id">ID: {{ frame.scriptId }}</span>
               </div>
             </div>
 

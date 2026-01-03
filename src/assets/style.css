@@ -40,8 +40,8 @@ body, html {
 .details-panel {
   flex: 1;
   overflow-y: auto;
+  padding: 5px 20px 20PX;
   background: #fff;
-  padding: 20px;
 }
 
 .uppercase {
@@ -65,7 +65,8 @@ body, html {
 }
 
 [class^=btn-]:disabled,
-[class*=" btn-"]:disabled {
+[class*=" btn-"]:disabled,
+button:disabled {
   color: #c0cddb;
   cursor: default
 }
@@ -331,15 +332,24 @@ tr:has(.status-error) .waterfall-bar {
 .main-tabs {
   display: flex;
   border-bottom: 1px solid #ddd;
-  margin: 15px 0;
 }
 
 .main-tabs button {
-  padding: 8px 16px;
+  padding: 8px 0;
+  margin: 0 8px -1px;
   background: none;
   border: none;
   border-bottom: 2px solid transparent;
   cursor: pointer;
+  transition: color 200ms ease;
+}
+
+.main-tabs button:first-child {
+  margin-left: 0;
+}
+
+.main-tabs button:last-child {
+  margin-right: 0;
 }
 
 .main-tabs button.active {
